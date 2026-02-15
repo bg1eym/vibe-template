@@ -29,6 +29,6 @@ export function getConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     host: parseHost(env.HOST),
     port: parsePort(env.PORT),
-    dbFile: parseDbFile(env.DB_FILE)
+    dbFile: parseDbFile(env.DB_FILE),
   };
 }

@@ -2,7 +2,7 @@ export const OPENAPI_SPEC = {
   openapi: "3.0.3",
   info: {
     title: "vibe-template API",
-    version: "0.1.0"
+    version: "0.1.0",
   },
   servers: [{ url: "http://127.0.0.1:3000" }],
   components: {
@@ -10,29 +10,29 @@ export const OPENAPI_SPEC = {
       bearerPlaceholder: {
         type: "http",
         scheme: "bearer",
-        bearerFormat: "user_<USER_ID>"
-      }
-    }
+        bearerFormat: "user_<USER_ID>",
+      },
+    },
   },
   paths: {
     "/health": {
       get: {
         responses: {
-          "200": { description: "OK" }
-        }
-      }
+          "200": { description: "OK" },
+        },
+      },
     },
     "/items": {
       get: {
         security: [{ bearerPlaceholder: [] }],
         parameters: [
           { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100 } },
-          { name: "offset", in: "query", schema: { type: "integer", minimum: 0 } }
+          { name: "offset", in: "query", schema: { type: "integer", minimum: 0 } },
         ],
         responses: {
           "200": { description: "List items" },
-          "401": { description: "Unauthorized" }
-        }
+          "401": { description: "Unauthorized" },
+        },
       },
       post: {
         security: [{ bearerPlaceholder: [] }],
@@ -46,18 +46,18 @@ export const OPENAPI_SPEC = {
                 required: ["title", "content"],
                 properties: {
                   title: { type: "string", minLength: 1 },
-                  content: { type: "string", minLength: 1 }
-                }
-              }
-            }
-          }
+                  content: { type: "string", minLength: 1 },
+                },
+              },
+            },
+          },
         },
         responses: {
           "201": { description: "Created" },
           "400": { description: "Bad Request" },
-          "401": { description: "Unauthorized" }
-        }
-      }
+          "401": { description: "Unauthorized" },
+        },
+      },
     },
     "/items/{id}": {
       get: {
@@ -67,8 +67,8 @@ export const OPENAPI_SPEC = {
           "200": { description: "Get item" },
           "401": { description: "Unauthorized" },
           "403": { description: "Forbidden" },
-          "404": { description: "Not Found" }
-        }
+          "404": { description: "Not Found" },
+        },
       },
       put: {
         security: [{ bearerPlaceholder: [] }],
@@ -78,8 +78,8 @@ export const OPENAPI_SPEC = {
           "400": { description: "Bad Request" },
           "401": { description: "Unauthorized" },
           "403": { description: "Forbidden" },
-          "404": { description: "Not Found" }
-        }
+          "404": { description: "Not Found" },
+        },
       },
       delete: {
         security: [{ bearerPlaceholder: [] }],
@@ -88,9 +88,9 @@ export const OPENAPI_SPEC = {
           "200": { description: "Deleted" },
           "401": { description: "Unauthorized" },
           "403": { description: "Forbidden" },
-          "404": { description: "Not Found" }
-        }
-      }
-    }
-  }
+          "404": { description: "Not Found" },
+        },
+      },
+    },
+  },
 } as const;

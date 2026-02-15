@@ -7,7 +7,7 @@ import {
   getItem,
   listItemsByOwner,
   updateItem,
-  deleteItem
+  deleteItem,
 } from "../src/services/itemService.js";
 
 describe("item service (db-only)", () => {
@@ -20,12 +20,12 @@ describe("item service (db-only)", () => {
     const item1 = createItem(db, {
       ownerId: user.id,
       title: "t1",
-      content: "c1"
+      content: "c1",
     });
     const item2 = createItem(db, {
       ownerId: user.id,
       title: "t2",
-      content: "c2"
+      content: "c2",
     });
 
     const got = getItem(db, item1.id);
@@ -38,7 +38,7 @@ describe("item service (db-only)", () => {
       id: item1.id,
       ownerId: user.id,
       title: "t1b",
-      content: "c1b"
+      content: "c1b",
     });
     expect(updated.title).toBe("t1b");
     expect(updated.content).toBe("c1b");
@@ -54,9 +54,9 @@ describe("item service (db-only)", () => {
     const db = openDb(":memory:");
     migrate(db);
 
-    expect(() =>
-      createItem(db, { ownerId: "missing", title: "t", content: "c" })
-    ).toThrow("owner does not exist");
+    expect(() => createItem(db, { ownerId: "missing", title: "t", content: "c" })).toThrow(
+      "owner does not exist",
+    );
 
     closeDb(db);
   });
@@ -70,11 +70,21 @@ describe("item service (db-only)", () => {
 
     const item = createItem(db, { ownerId: u1.id, title: "t", content: "c" });
 
-    try { updateItem(db, { id: item.id, ownerId: u2.id, title: "x", content: "y" }); throw new Error("expected error"); } catch (e: any) { expect(e.code).toBe("FORBIDDEN"); expect(e.statusCode).toBe(403); }
+    try {
+      updateItem(db, { id: item.id, ownerId: u2.id, title: "x", content: "y" });
+      throw new Error("expected error");
+    } catch (e: any) {
+      expect(e.code).toBe("FORBIDDEN");
+      expect(e.statusCode).toBe(403);
+    }
 
-
-    try { deleteItem(db, { id: item.id, ownerId: u2.id }); throw new Error("expected error"); } catch (e: any) { expect(e.code).toBe("FORBIDDEN"); expect(e.statusCode).toBe(403); }
-
+    try {
+      deleteItem(db, { id: item.id, ownerId: u2.id });
+      throw new Error("expected error");
+    } catch (e: any) {
+      expect(e.code).toBe("FORBIDDEN");
+      expect(e.statusCode).toBe(403);
+    }
 
     closeDb(db);
   });

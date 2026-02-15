@@ -21,11 +21,7 @@ export function createUser(db: DbClient, email: string): UserRow {
   const now = new Date().toISOString();
   const id = randomUUID();
 
-  db.prepare("insert into users (id, email, created_at) values (?, ?, ?)").run(
-    id,
-    email,
-    now
-  );
+  db.prepare("insert into users (id, email, created_at) values (?, ?, ?)").run(id, email, now);
 
   return { id, email, created_at: now };
 }
@@ -41,7 +37,7 @@ function assertUserExists(db: DbClient, ownerId: string) {
 
 export function createItem(
   db: DbClient,
-  input: { ownerId: string; title: string; content: string }
+  input: { ownerId: string; title: string; content: string },
 ): ItemRow {
   assertUserExists(db, input.ownerId);
 
@@ -49,7 +45,7 @@ export function createItem(
   const id = randomUUID();
 
   db.prepare(
-    "insert into items (id, owner_id, title, content, created_at, updated_at) values (?, ?, ?, ?, ?, ?)"
+    "insert into items (id, owner_id, title, content, created_at, updated_at) values (?, ?, ?, ?, ?, ?)",
   ).run(id, input.ownerId, input.title, input.content, now, now);
 
   return {
@@ -58,15 +54,13 @@ export function createItem(
     title: input.title,
     content: input.content,
     created_at: now,
-    updated_at: now
+    updated_at: now,
   };
 }
 
 export function getItem(db: DbClient, id: string): ItemRow | null {
   const row = db
-    .prepare(
-      "select id, owner_id, title, content, created_at, updated_at from items where id = ?"
-    )
+    .prepare("select id, owner_id, title, content, created_at, updated_at from items where id = ?")
     .get(id) as ItemRow | undefined;
 
   return row ?? null;
@@ -75,7 +69,7 @@ export function getItem(db: DbClient, id: string): ItemRow | null {
 export function listItemsByOwner(db: DbClient, ownerId: string): ItemRow[] {
   return db
     .prepare(
-      "select id, owner_id, title, content, created_at, updated_at from items where owner_id = ? order by created_at asc, rowid asc"
+      "select id, owner_id, title, content, created_at, updated_at from items where owner_id = ? order by created_at asc, rowid asc",
     )
     .all(ownerId) as ItemRow[];
 }
@@ -84,7 +78,7 @@ export function listItemsPageByOwner(
   db: DbClient,
   ownerId: string,
   limit: number,
-  offset: number
+  offset: number,
 ): { items: ItemRow[]; total: number } {
   const totalRow = db
     .prepare("select count(*) as n from items where owner_id = ?")
@@ -92,7 +86,7 @@ export function listItemsPageByOwner(
 
   const items = db
     .prepare(
-      "select id, owner_id, title, content, created_at, updated_at from items where owner_id = ? order by created_at asc, rowid asc limit ? offset ?"
+      "select id, owner_id, title, content, created_at, updated_at from items where owner_id = ? order by created_at asc, rowid asc limit ? offset ?",
     )
     .all(ownerId, limit, offset) as ItemRow[];
 
@@ -101,11 +95,11 @@ export function listItemsPageByOwner(
 
 export function updateItem(
   db: DbClient,
-  input: { id: string; ownerId: string; title: string; content: string }
+  input: { id: string; ownerId: string; title: string; content: string },
 ): ItemRow {
-  const existing = db
-    .prepare("select id, owner_id from items where id = ?")
-    .get(input.id) as { id: string; owner_id: string } | undefined;
+  const existing = db.prepare("select id, owner_id from items where id = ?").get(input.id) as
+    | { id: string; owner_id: string }
+    | undefined;
 
   if (!existing) {
     throw new AppError("ITEM_NOT_FOUND", 404, "item not found");
@@ -120,7 +114,7 @@ export function updateItem(
     input.title,
     input.content,
     now,
-    input.id
+    input.id,
   );
 
   const updated = getItem(db, input.id);
@@ -132,11 +126,11 @@ export function updateItem(
 
 export function deleteItem(
   db: DbClient,
-  input: { id: string; ownerId: string }
+  input: { id: string; ownerId: string },
 ): { deleted: boolean } {
-  const existing = db
-    .prepare("select id, owner_id from items where id = ?")
-    .get(input.id) as { id: string; owner_id: string } | undefined;
+  const existing = db.prepare("select id, owner_id from items where id = ?").get(input.id) as
+    | { id: string; owner_id: string }
+    | undefined;
 
   if (!existing) {
     return { deleted: false };

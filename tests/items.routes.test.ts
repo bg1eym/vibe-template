@@ -18,7 +18,7 @@ describe("items routes", () => {
       method: "POST",
       url: "/items",
       headers: { authorization: `Bearer ${token}` },
-      payload: { title: "t1", content: "c1" }
+      payload: { title: "t1", content: "c1" },
     });
     expect(createRes.statusCode).toBe(201);
     const created = createRes.json();
@@ -28,7 +28,7 @@ describe("items routes", () => {
     const listRes = await app.inject({
       method: "GET",
       url: "/items",
-      headers: { authorization: `Bearer ${token}` }
+      headers: { authorization: `Bearer ${token}` },
     });
     expect(listRes.statusCode).toBe(200);
     const list = listRes.json();
@@ -40,7 +40,7 @@ describe("items routes", () => {
     const getRes = await app.inject({
       method: "GET",
       url: `/items/${itemId}`,
-      headers: { authorization: `Bearer ${token}` }
+      headers: { authorization: `Bearer ${token}` },
     });
     expect(getRes.statusCode).toBe(200);
 
@@ -48,7 +48,7 @@ describe("items routes", () => {
       method: "PUT",
       url: `/items/${itemId}`,
       headers: { authorization: `Bearer ${token}` },
-      payload: { title: "t1b", content: "c1b" }
+      payload: { title: "t1b", content: "c1b" },
     });
     expect(putRes.statusCode).toBe(200);
     expect(putRes.json().data.item.title).toBe("t1b");
@@ -56,7 +56,7 @@ describe("items routes", () => {
     const delRes = await app.inject({
       method: "DELETE",
       url: `/items/${itemId}`,
-      headers: { authorization: `Bearer ${token}` }
+      headers: { authorization: `Bearer ${token}` },
     });
     expect(delRes.statusCode).toBe(200);
     expect(delRes.json().data.deleted).toBe(true);
@@ -74,7 +74,7 @@ describe("items routes", () => {
     expect(res.statusCode).toBe(401);
     expect(res.json()).toEqual({
       success: false,
-      error: { code: "UNAUTHORIZED", message: "missing authorization" }
+      error: { code: "UNAUTHORIZED", message: "missing authorization" },
     });
 
     await app.close();
@@ -93,13 +93,13 @@ describe("items routes", () => {
       method: "POST",
       url: "/items",
       headers: { authorization: `Bearer ${token}` },
-      payload: { title: "", content: "" }
+      payload: { title: "", content: "" },
     });
 
     expect(res.statusCode).toBe(400);
     expect(res.json()).toEqual({
       success: false,
-      error: { code: "BAD_REQUEST", message: "invalid request" }
+      error: { code: "BAD_REQUEST", message: "invalid request" },
     });
 
     await app.close();
@@ -114,31 +114,37 @@ describe("items routes", () => {
 
     const app = buildApp({ db });
 
-    const i1 = (await app.inject({
-      method: "POST",
-      url: "/items",
-      headers: { authorization: `Bearer ${token}` },
-      payload: { title: "t1", content: "c1" }
-    })).json().data.item.id as string;
+    const _i1 = (
+      await app.inject({
+        method: "POST",
+        url: "/items",
+        headers: { authorization: `Bearer ${token}` },
+        payload: { title: "t1", content: "c1" },
+      })
+    ).json().data.item.id as string;
 
-    const i2 = (await app.inject({
-      method: "POST",
-      url: "/items",
-      headers: { authorization: `Bearer ${token}` },
-      payload: { title: "t2", content: "c2" }
-    })).json().data.item.id as string;
+    const i2 = (
+      await app.inject({
+        method: "POST",
+        url: "/items",
+        headers: { authorization: `Bearer ${token}` },
+        payload: { title: "t2", content: "c2" },
+      })
+    ).json().data.item.id as string;
 
-    const i3 = (await app.inject({
-      method: "POST",
-      url: "/items",
-      headers: { authorization: `Bearer ${token}` },
-      payload: { title: "t3", content: "c3" }
-    })).json().data.item.id as string;
+    const i3 = (
+      await app.inject({
+        method: "POST",
+        url: "/items",
+        headers: { authorization: `Bearer ${token}` },
+        payload: { title: "t3", content: "c3" },
+      })
+    ).json().data.item.id as string;
 
     const res = await app.inject({
       method: "GET",
       url: "/items?limit=2&offset=1",
-      headers: { authorization: `Bearer ${token}` }
+      headers: { authorization: `Bearer ${token}` },
     });
 
     expect(res.statusCode).toBe(200);
