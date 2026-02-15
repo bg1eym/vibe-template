@@ -13,12 +13,6 @@ export function parseAuth(headers: Record<string, any>): AuthResult {
     return { ok: false, code: "UNAUTHORIZED", message: "invalid token" };
   }
 
-  // backward-compat: allow x-owner-id (temporary)
-  const legacy = headers["x-owner-id"];
-  if (typeof legacy === "string" && legacy.trim() !== "") {
-    return { ok: true, userId: legacy.trim() };
-  }
-
   return { ok: false, code: "UNAUTHORIZED", message: "missing authorization" };
 }
 

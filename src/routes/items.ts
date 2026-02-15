@@ -7,8 +7,7 @@ import {
   updateItem
 } from "../services/itemService.js";
 import { AppError } from "../lib/errors.js";
-import { ok, unauthorized } from "../lib/http.js";
-import { parseAuth } from "../lib/auth.js";
+import { ok } from "../lib/http.js";
 
 const itemBodySchema = {
   type: "object",
@@ -38,18 +37,12 @@ function parseIntParam(v: unknown): number | null {
   return null;
 }
 
-function requireUserId(headers: Record<string, any>) {
-  const r = parseAuth(headers);
-  if (!r.ok) throw new AppError("UNAUTHORIZED", 401, r.message);
-  return r.userId;
-}
-
 export async function registerItemRoutes(app: FastifyInstance) {
   app.get(
     "/items",
     { schema: { querystring: listQuerySchema } },
     async (req) => {
-      const ownerId = requireUserId((req as any).headers);
+      const ownerId = req.userId as string;
 
       const q = (req.query ?? {}) as any;
 
@@ -75,7 +68,7 @@ export async function registerItemRoutes(app: FastifyInstance) {
     "/items",
     { schema: { body: itemBodySchema } },
     async (req, reply) => {
-      const ownerId = requireUserId((req as any).headers);
+      const ownerId = req.userId as string;
 
       const body = req.body as { title: string; content: string };
       const item = createItem(app.deps.db, {
@@ -89,7 +82,7 @@ export async function registerItemRoutes(app: FastifyInstance) {
   );
 
   app.get("/items/:id", async (req) => {
-    const ownerId = requireUserId((req as any).headers);
+    const ownerId = req.userId as string;
 
     const id = (req.params as any).id as string;
     const item = getItem(app.deps.db, id);
@@ -103,7 +96,7 @@ export async function registerItemRoutes(app: FastifyInstance) {
     "/items/:id",
     { schema: { body: itemBodySchema } },
     async (req) => {
-      const ownerId = requireUserId((req as any).headers);
+      const ownerId = req.userId as string;
 
       const id = (req.params as any).id as string;
       const body = req.body as { title: string; content: string };
@@ -120,7 +113,7 @@ export async function registerItemRoutes(app: FastifyInstance) {
   );
 
   app.delete("/items/:id", async (req) => {
-    const ownerId = requireUserId((req as any).headers);
+    const ownerId = req.userId as string;
 
     const id = (req.params as any).id as string;
 

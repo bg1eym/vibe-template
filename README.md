@@ -14,3 +14,25 @@ Rules:
 - Record decisions in docs/DECISIONS.md
 - Always add tests
 - Always propose a plan before changes
+
+
+## Dev shortcuts
+
+- Start dev server (watch):
+
+  npm run dev
+
+- Start dev server with automatic /health check (recommended):
+
+  ./scripts/dev.sh
+
+- Full local verification:
+
+  ./scripts/check-all.sh
+
+
+## API docs
+
+- /docs
+- /openapi.json
+- docs/openapi.json (more detailed offline spec)

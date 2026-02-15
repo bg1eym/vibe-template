@@ -1,14 +1,11 @@
 import { buildApp } from "./app.js";
+import { getConfig } from "./lib/config.js";
 
-const port = Number(process.env.PORT ?? 3000);
-const host = process.env.HOST ?? "127.0.0.1";
+const cfg = getConfig();
 
 const app = buildApp();
 
-try {
-  await app.listen({ port, host });
-  console.log(`listening on http://${host}:${port}`);
-} catch (err) {
-  console.error("failed to start server:", err);
+app.listen({ port: cfg.port, host: cfg.host }).catch((err) => {
+  console.error(err);
   process.exit(1);
-}
+});
