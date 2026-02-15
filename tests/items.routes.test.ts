@@ -106,6 +106,221 @@ describe("items routes", () => {
     closeDb(db);
   });
 
+  it("returns 404 ITEM_NOT_FOUND when GET /items/:id with non-existent id", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const user = createUser(db, "n@example.com");
+    const token = bearerTokenForUser(user.id);
+
+    const app = buildApp({ db });
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/items/non-existent-id",
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    expect(res.statusCode).toBe(404);
+    expect(res.json()).toEqual({
+      success: false,
+      error: { code: "ITEM_NOT_FOUND", message: "item not found" },
+    });
+
+    await app.close();
+    closeDb(db);
+  });
+
+  it("returns 403 FORBIDDEN when GET /items/:id for item owned by another user", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const userA = createUser(db, "a@example.com");
+    const userB = createUser(db, "b@example.com");
+    const tokenA = bearerTokenForUser(userA.id);
+    const tokenB = bearerTokenForUser(userB.id);
+
+    const app = buildApp({ db });
+
+    const createRes = await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${tokenA}` },
+      payload: { title: "a's item", content: "content" },
+    });
+    expect(createRes.statusCode).toBe(201);
+    const itemId = createRes.json().data.item.id as string;
+
+    const res = await app.inject({
+      method: "GET",
+      url: `/items/${itemId}`,
+      headers: { authorization: `Bearer ${tokenB}` },
+    });
+
+    expect(res.statusCode).toBe(403);
+    expect(res.json()).toEqual({
+      success: false,
+      error: { code: "FORBIDDEN", message: "not your item" },
+    });
+
+    await app.close();
+    closeDb(db);
+  });
+
+  it("creates item with tags and retrieves it with tags array", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const user = createUser(db, "t@example.com");
+    const token = bearerTokenForUser(user.id);
+
+    const app = buildApp({ db });
+
+    const createRes = await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "tagged", content: "c", tags: ["a", "b"] },
+    });
+    expect(createRes.statusCode).toBe(201);
+    const created = createRes.json();
+    expect(created.data.item.tags).toEqual(["a", "b"]);
+
+    const getRes = await app.inject({
+      method: "GET",
+      url: `/items/${created.data.item.id}`,
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(getRes.statusCode).toBe(200);
+    expect(getRes.json().data.item.tags).toEqual(["a", "b"]);
+
+    await app.close();
+    closeDb(db);
+  });
+
+  it("GET /items?tag=... returns only items with that tag", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const user = createUser(db, "tag@example.com");
+    const token = bearerTokenForUser(user.id);
+
+    const app = buildApp({ db });
+
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "x", content: "c", tags: ["alpha"] },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "y", content: "c", tags: ["beta"] },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "z", content: "c", tags: ["alpha", "beta"] },
+    });
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/items?tag=alpha",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.data.items.length).toBe(2);
+    expect(body.data.page.total).toBe(2);
+    expect(body.data.items.every((it: { tags: string[] }) => it.tags.includes("alpha"))).toBe(true);
+
+    await app.close();
+    closeDb(db);
+  });
+
+  it("GET /items?q=... matches title and content", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const user = createUser(db, "q@example.com");
+    const token = bearerTokenForUser(user.id);
+
+    const app = buildApp({ db });
+
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "Hello World", content: "foo" },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "bar", content: "hello there" },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "baz", content: "qux" },
+    });
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/items?q=hello",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.data.items.length).toBe(2);
+    expect(body.data.page.total).toBe(2);
+
+    await app.close();
+    closeDb(db);
+  });
+
+  it("GET /items?q=...&tag=... combines filters", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const user = createUser(db, "qt@example.com");
+    const token = bearerTokenForUser(user.id);
+
+    const app = buildApp({ db });
+
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "match", content: "x", tags: ["t1"] },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "match", content: "y", tags: ["t2"] },
+    });
+    await app.inject({
+      method: "POST",
+      url: "/items",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { title: "nope", content: "z", tags: ["t1"] },
+    });
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/items?q=match&tag=t1",
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.data.items.length).toBe(1);
+    expect(body.data.page.total).toBe(1);
+    expect(body.data.items[0].title).toBe("match");
+    expect(body.data.items[0].tags).toContain("t1");
+
+    await app.close();
+    closeDb(db);
+  });
+
   it("paginates GET /items with limit/offset", async () => {
     const db = openDb(":memory:");
     migrate(db);

@@ -31,4 +31,34 @@ describe("openapi routes", () => {
     await app.close();
     closeDb(db);
   });
+
+  it("serves /studio html", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const app = buildApp({ db });
+
+    const res = await app.inject({ method: "GET", url: "/studio" });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toContain("text/html");
+    expect(res.payload).toContain("工作室");
+    expect(res.payload).toContain("剧情支撑");
+
+    await app.close();
+    closeDb(db);
+  });
+
+  it("serves /ui html", async () => {
+    const db = openDb(":memory:");
+    migrate(db);
+    const app = buildApp({ db });
+
+    const res = await app.inject({ method: "GET", url: "/ui" });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toContain("text/html");
+    expect(res.payload).toContain("Items UI");
+    expect(res.payload).toContain('id="token"');
+
+    await app.close();
+    closeDb(db);
+  });
 });

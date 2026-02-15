@@ -1,7 +1,11 @@
 import Fastify from "fastify";
 import { registerHealthRoutes } from "./routes/health.js";
+import { registerAnalyzeRoutes } from "./routes/analyze.js";
 import { registerItemRoutes } from "./routes/items.js";
 import { registerOpenApiRoutes } from "./routes/openapi.js";
+import { registerUiRoutes } from "./routes/ui.js";
+import { registerStudioRoutes } from "./routes/studio.js";
+import { registerAssetsRoutes } from "./routes/assets.js";
 import { openDb, closeDb, type DbClient } from "./db/client.js";
 import { migrate } from "./db/migrate.js";
 import { isAppError, AppError } from "./lib/errors.js";
@@ -30,9 +34,13 @@ export function buildApp(deps?: Partial<AppDeps>) {
   app.decorateRequest("ownerId", undefined);
 
   // Centralized auth requirement:
-  // Enforce auth for /items* routes, attach req.ownerId for handlers.
+  // Enforce auth for /items* and /analyze routes, attach req.ownerId for handlers.
   app.addHook("preHandler", async (req) => {
-    if (!req.url.startsWith("/items")) return;
+    const needsAuth =
+      req.url.startsWith("/items") ||
+      req.url.startsWith("/analyze") ||
+      req.url.startsWith("/expand");
+    if (!needsAuth) return;
 
     const ownerId = getOwnerId(req);
     if (!ownerId) {
@@ -56,8 +64,12 @@ export function buildApp(deps?: Partial<AppDeps>) {
   });
 
   void registerHealthRoutes(app);
+  void registerAnalyzeRoutes(app);
   void registerItemRoutes(app);
   void registerOpenApiRoutes(app);
+  void registerUiRoutes(app);
+  void registerStudioRoutes(app);
+  void registerAssetsRoutes(app);
 
   app.addHook("onClose", async () => {
     closeDb(db);

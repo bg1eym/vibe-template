@@ -1,0 +1,58 @@
+[
+  {
+    "id": "space",
+    "keywords": ["rocket", "launch", "orbit", "nasa"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "time_travel",
+    "keywords": ["time", "past", "future", "temporal"],
+    "weight": 2,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "ai",
+    "keywords": ["ai", "robot", "machine", "android"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "dystopia",
+    "keywords": ["dystopia", "totalitarian", "oppression"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "contact",
+    "keywords": ["alien", "extraterrestrial", "signal"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "genetics",
+    "keywords": ["gene", "dna", "clone", "mutation"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "cyberpunk",
+    "keywords": ["cyber", "hack", "matrix"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "consciousness",
+    "keywords": ["mind", "conscious", "upload", "simulation"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  }
+]

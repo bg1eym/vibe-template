@@ -1,3 +1,5 @@
+IMPORTANT: Read docs/CURSOR_CONTRACT.md before changes. Run `npm run fmt && ./scripts/check-all.sh` at task end.
+
 READ docs/SPEC.md before any change.
 DO NOT implement anything outside SPEC.
 DO NOT modify unrelated code.

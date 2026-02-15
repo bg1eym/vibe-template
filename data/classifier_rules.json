@@ -1,0 +1,93 @@
+[
+  {
+    "id": "space",
+    "keywords": [
+      "space",
+      "orbit",
+      "mars",
+      "starship",
+      "galaxy",
+      "astronaut",
+      "cosmos",
+      "planet",
+      "alien world"
+    ],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "time_travel",
+    "keywords": ["time", "past", "future", "temporal", "paradox", "chrono", "rewind", "history"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "ai",
+    "keywords": [
+      "ai",
+      "robot",
+      "machine",
+      "algorithm",
+      "neural",
+      "artificial",
+      "automation",
+      "android"
+    ],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "dystopia",
+    "keywords": [
+      "dystopia",
+      "totalitarian",
+      "oppression",
+      "surveillance",
+      "regime",
+      "collapse",
+      "ruins"
+    ],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "contact",
+    "keywords": [
+      "first contact",
+      "alien",
+      "extraterrestrial",
+      "signal",
+      "message",
+      "visitor",
+      "invasion"
+    ],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "genetics",
+    "keywords": ["gene", "dna", "clone", "mutation", "evolution", "bio", "engineered", "species"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "cyberpunk",
+    "keywords": ["cyber", "hack", "neural", "implant", "corporate", "megacity", "street", "matrix"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  },
+  {
+    "id": "consciousness",
+    "keywords": ["mind", "conscious", "upload", "simulation", "reality", "dream", "identity"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  }
+]

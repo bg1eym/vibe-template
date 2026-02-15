@@ -6,6 +6,20 @@ export const OPENAPI_SPEC = {
   },
   servers: [{ url: "http://127.0.0.1:3000" }],
   components: {
+    schemas: {
+      Item: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          owner_id: { type: "string" },
+          title: { type: "string" },
+          content: { type: "string" },
+          tags: { type: "array", items: { type: "string" } },
+          created_at: { type: "string" },
+          updated_at: { type: "string" },
+        },
+      },
+    },
     securitySchemes: {
       bearerPlaceholder: {
         type: "http",
@@ -28,6 +42,13 @@ export const OPENAPI_SPEC = {
         parameters: [
           { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100 } },
           { name: "offset", in: "query", schema: { type: "integer", minimum: 0 } },
+          {
+            name: "q",
+            in: "query",
+            schema: { type: "string" },
+            description: "Search in title/content (case-insensitive)",
+          },
+          { name: "tag", in: "query", schema: { type: "string" }, description: "Filter by tag" },
         ],
         responses: {
           "200": { description: "List items" },
@@ -47,6 +68,7 @@ export const OPENAPI_SPEC = {
                 properties: {
                   title: { type: "string", minLength: 1 },
                   content: { type: "string", minLength: 1 },
+                  tags: { type: "array", items: { type: "string" }, description: "Optional tags" },
                 },
               },
             },

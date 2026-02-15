@@ -9,8 +9,8 @@ Error response:
 Endpoints:
 
 - GET /health
-- GET /items
-- POST /items
+- GET /items (query: q, tag, limit, offset)
+- POST /items (body: title, content, tags?)
 - GET /items/:id
 - PUT /items/:id
 - DELETE /items/:id

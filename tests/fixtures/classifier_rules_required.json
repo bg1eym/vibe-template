@@ -1,0 +1,16 @@
+[
+  {
+    "id": "space",
+    "keywords": ["space", "orbit", "mars"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": ["rocket"]
+  },
+  {
+    "id": "ai",
+    "keywords": ["robot", "ai", "machine"],
+    "weight": 1,
+    "negative_keywords": [],
+    "required_keywords": []
+  }
+]

@@ -35,6 +35,7 @@ Item:
 - owner_id
 - title
 - content
+- tags (string[], JSON in DB)
 - created_at
 - updated_at
 

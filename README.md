@@ -1,5 +1,7 @@
 # vibe-template
 
+> **NOTE FOR CURSOR/CLAUDE USERS**: Before modifying any code, read [docs/CURSOR_CONTRACT.md](docs/CURSOR_CONTRACT.md) first.
+
 AI-assisted development template.
 
 Dev:
@@ -36,3 +38,15 @@ Rules:
 - /docs
 - /openapi.json
 - docs/openapi.json (more detailed offline spec)
+
+## UI
+
+1. Start dev server: `npm run dev`
+2. Open: http://127.0.0.1:3000/ui
+3. Enter token (ownerId, e.g. `user_xxx` or just the id), then Query.
+
+## Studio
+
+1. Start dev server: `npm run dev`
+2. Open: http://127.0.0.1:3000/studio
+3. Enter token, paste text, click Analyze. View categories, sci-fi matches, podcast outline.

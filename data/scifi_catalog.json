@@ -1,0 +1,250 @@
+[
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "premise": "A noble family controls desert planet Arrakis.",
+    "themes": ["space", "dystopia", "genetics"],
+    "mechanism": "delegated authority",
+    "hooks": ["Spice extends life", "Sandworms", "Political intrigue"]
+  },
+  {
+    "title": "1984",
+    "author": "George Orwell",
+    "premise": "Totalitarian regime surveils citizens.",
+    "themes": ["dystopia", "consciousness"],
+    "mechanism": "surveillance economy",
+    "hooks": ["Big Brother", "Thought police", "Newspeak"]
+  },
+  {
+    "title": "Neuromancer",
+    "author": "William Gibson",
+    "premise": "Hacker navigates cyberspace.",
+    "themes": ["cyberpunk", "ai", "consciousness"],
+    "mechanism": "automation deskilling",
+    "hooks": ["Matrix", "AI Wintermute", "Case the cowboy"]
+  },
+  {
+    "title": "The Martian",
+    "author": "Andy Weir",
+    "premise": "Astronaut stranded on Mars.",
+    "themes": ["space", "genetics"],
+    "mechanism": "delegated authority",
+    "hooks": ["Potatoes", "Solo survival", "Rescue mission"]
+  },
+  {
+    "title": "Blade Runner",
+    "author": "Philip K. Dick",
+    "premise": "Replicants hunted in future LA.",
+    "themes": ["ai", "cyberpunk", "consciousness"],
+    "mechanism": "identity copy",
+    "hooks": ["What is human?", "Tyrell Corp", "Voight-Kampff"]
+  },
+  {
+    "title": "Foundation",
+    "author": "Isaac Asimov",
+    "premise": "Psychohistory predicts empire collapse.",
+    "themes": ["space", "ai", "time_travel"],
+    "mechanism": "epistemic dependence",
+    "hooks": ["Hari Seldon", "Plan", "Galactic empire"]
+  },
+  {
+    "title": "The Time Machine",
+    "author": "H.G. Wells",
+    "premise": "Inventor travels to distant future.",
+    "themes": ["time_travel", "dystopia"],
+    "mechanism": "epistemic collapse",
+    "hooks": ["Eloi and Morlocks", "802701 AD", "Time machine"]
+  },
+  {
+    "title": "Ender's Game",
+    "author": "Orson Scott Card",
+    "premise": "Child soldiers train for alien war.",
+    "themes": ["space", "contact", "ai"],
+    "mechanism": "delegated authority",
+    "hooks": ["Battle school", "Formics", "Simulation"]
+  },
+  {
+    "title": "Snow Crash",
+    "author": "Neal Stephenson",
+    "premise": "Hacker uncovers viral meme.",
+    "themes": ["cyberpunk", "consciousness"],
+    "mechanism": "epistemic collapse",
+    "hooks": ["Metaverse", "Hiro Protagonist", "Linguistic virus"]
+  },
+  {
+    "title": "Contact",
+    "author": "Carl Sagan",
+    "premise": "Scientists receive alien signal.",
+    "themes": ["contact", "space"],
+    "mechanism": "epistemic dependence",
+    "hooks": ["Vega message", "Machine", "Wormhole"]
+  },
+  {
+    "title": "Brave New World",
+    "author": "Aldous Huxley",
+    "premise": "Society engineered for stability.",
+    "themes": ["dystopia", "genetics"],
+    "mechanism": "delegated authority",
+    "hooks": ["Bokanovsky", "Soma", "John the Savage"]
+  },
+  {
+    "title": "Ex Machina",
+    "author": "Alex Garland",
+    "premise": "Programmer tests AI humanoid.",
+    "themes": ["ai", "consciousness"],
+    "mechanism": "automation deskilling",
+    "hooks": ["Turing test", "Ava", "Isolation"]
+  },
+  {
+    "title": "Arrival",
+    "author": "Ted Chiang",
+    "premise": "Linguist decodes alien language.",
+    "themes": ["contact", "time_travel", "consciousness"],
+    "mechanism": "epistemic dependence",
+    "hooks": ["Heptapods", "Non-linear time", "Sapir-Whorf"]
+  },
+  {
+    "title": "Altered Carbon",
+    "author": "Richard Morgan",
+    "premise": "Consciousness stored in stacks.",
+    "themes": ["cyberpunk", "consciousness", "ai"],
+    "mechanism": "identity copy",
+    "hooks": ["Sleeves", "Resleeving", "Meths"]
+  },
+  {
+    "title": "The Left Hand of Darkness",
+    "author": "Ursula K. Le Guin",
+    "premise": "Envoy to androgynous world.",
+    "themes": ["space", "genetics", "contact"],
+    "mechanism": "epistemic collapse",
+    "hooks": ["Gethen", "Kemmer", "Winter"]
+  },
+  {
+    "title": "Hyperion",
+    "author": "Dan Simmons",
+    "premise": "Pilgrims seek the Shrike.",
+    "themes": ["space", "time_travel", "ai"],
+    "mechanism": "delegated authority",
+    "hooks": ["Time tombs", "Shrike", "Farcaster"]
+  },
+  {
+    "title": "Do Androids Dream",
+    "author": "Philip K. Dick",
+    "premise": "Bounty hunter retires replicants.",
+    "themes": ["ai", "consciousness", "dystopia"],
+    "mechanism": "identity copy",
+    "hooks": ["Empathy test", "Mercerism", "Rachael"]
+  },
+  {
+    "title": "The Three-Body Problem",
+    "author": "Liu Cixin",
+    "premise": "Physicists contact Trisolarans.",
+    "themes": ["contact", "space", "ai"],
+    "mechanism": "epistemic dependence",
+    "hooks": ["VR game", "Sophons", "Dark forest"]
+  },
+  {
+    "title": "Annihilation",
+    "author": "Jeff VanderMeer",
+    "premise": "Expedition into mutated zone.",
+    "themes": ["genetics", "consciousness", "contact"],
+    "mechanism": "epistemic collapse",
+    "hooks": ["Shimmer", "Lighthouse", "Transformation"]
+  },
+  {
+    "title": "Ready Player One",
+    "author": "Ernest Cline",
+    "premise": "VR treasure hunt in OASIS.",
+    "themes": ["cyberpunk", "consciousness"],
+    "mechanism": "identity copy",
+    "hooks": ["Easter egg", "Halliday", "Virtual world"]
+  },
+  {
+    "title": "Project Hail Mary",
+    "author": "Andy Weir",
+    "premise": "Scientist saves Earth from sun dimming.",
+    "themes": ["space", "contact"],
+    "mechanism": "epistemic dependence",
+    "hooks": ["Rocky", "Astrophage", "Solo mission"]
+  },
+  {
+    "title": "Children of Time",
+    "author": "Adrian Tchaikovsky",
+    "premise": "Spiders evolve on terraformed world.",
+    "themes": ["space", "genetics", "ai"],
+    "mechanism": "automation deskilling",
+    "hooks": ["Portia", "Uplift", "Kern"]
+  },
+  {
+    "title": "The Dispossessed",
+    "author": "Ursula K. Le Guin",
+    "premise": "Physicist bridges two worlds.",
+    "themes": ["space", "dystopia"],
+    "mechanism": "delegated authority",
+    "hooks": ["Anarres", "Urras", "Simultaneity"]
+  },
+  {
+    "title": "Dark Matter",
+    "author": "Blake Crouch",
+    "premise": "Physicist lost in multiverse.",
+    "themes": ["time_travel", "consciousness"],
+    "mechanism": "identity copy",
+    "hooks": ["Box", "Alternate selves", "Quantum"]
+  },
+  {
+    "title": "Station Eleven",
+    "author": "Emily St. John Mandel",
+    "premise": "Troupe survives pandemic collapse.",
+    "themes": ["dystopia", "consciousness"],
+    "mechanism": "epistemic collapse",
+    "hooks": ["Traveling Symphony", "Georgia Flu", "Pre-collapse"]
+  },
+  {
+    "title": "Red Mars",
+    "author": "Kim Stanley Robinson",
+    "premise": "First hundred colonize Mars.",
+    "themes": ["space", "genetics", "dystopia"],
+    "mechanism": "delegated authority",
+    "hooks": ["Terraforming", "First hundred", "Politics"]
+  },
+  {
+    "title": "The Windup Girl",
+    "author": "Paolo Bacigalupi",
+    "premise": "Bio-engineered future Thailand.",
+    "themes": ["genetics", "dystopia", "cyberpunk"],
+    "mechanism": "automation deskilling",
+    "hooks": ["Calorie companies", "New people", "Springs"]
+  },
+  {
+    "title": "Solaris",
+    "author": "Stanisław Lem",
+    "premise": "Ocean planet probes human psyche.",
+    "themes": ["space", "contact", "consciousness"],
+    "mechanism": "epistemic dependence",
+    "hooks": ["Solaris ocean", "Hari", "Xenobiology"]
+  },
+  {
+    "title": "I, Robot",
+    "author": "Isaac Asimov",
+    "premise": "Robotics and the three laws.",
+    "themes": ["ai", "consciousness"],
+    "mechanism": "automation deskilling",
+    "hooks": ["Three laws", "Susan Calvin", "Robots"]
+  },
+  {
+    "title": "The City and the Stars",
+    "author": "Arthur C. Clarke",
+    "premise": "Immortal city and the unknown.",
+    "themes": ["space", "ai", "consciousness"],
+    "mechanism": "identity copy",
+    "hooks": ["Diaspar", "Lys", "Alvin"]
+  },
+  {
+    "title": "Parable of the Sower",
+    "author": "Octavia Butler",
+    "premise": "Empath navigates climate collapse.",
+    "themes": ["dystopia", "genetics", "consciousness"],
+    "mechanism": "epistemic collapse",
+    "hooks": ["Earthseed", "Hyperempathy", "Community"]
+  }
+]

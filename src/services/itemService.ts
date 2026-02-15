@@ -13,9 +13,23 @@ export type ItemRow = {
   owner_id: string;
   title: string;
   content: string;
+  tags: string;
   created_at: string;
   updated_at: string;
 };
+
+export function parseTagsJson(tagsJson: string): string[] {
+  try {
+    const arr = JSON.parse(tagsJson) as unknown;
+    return Array.isArray(arr) ? arr.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function tagsToJson(tags: string[]): string {
+  return JSON.stringify(tags.filter((t) => typeof t === "string" && t.length > 0));
+}
 
 export function createUser(db: DbClient, email: string): UserRow {
   const now = new Date().toISOString();
@@ -37,22 +51,24 @@ function assertUserExists(db: DbClient, ownerId: string) {
 
 export function createItem(
   db: DbClient,
-  input: { ownerId: string; title: string; content: string },
+  input: { ownerId: string; title: string; content: string; tags?: string[] },
 ): ItemRow {
   assertUserExists(db, input.ownerId);
 
   const now = new Date().toISOString();
   const id = randomUUID();
+  const tags = tagsToJson(input.tags ?? []);
 
   db.prepare(
-    "insert into items (id, owner_id, title, content, created_at, updated_at) values (?, ?, ?, ?, ?, ?)",
-  ).run(id, input.ownerId, input.title, input.content, now, now);
+    "insert into items (id, owner_id, title, content, tags, created_at, updated_at) values (?, ?, ?, ?, ?, ?, ?)",
+  ).run(id, input.ownerId, input.title, input.content, tags, now, now);
 
   return {
     id,
     owner_id: input.ownerId,
     title: input.title,
     content: input.content,
+    tags,
     created_at: now,
     updated_at: now,
   };
@@ -60,7 +76,9 @@ export function createItem(
 
 export function getItem(db: DbClient, id: string): ItemRow | null {
   const row = db
-    .prepare("select id, owner_id, title, content, created_at, updated_at from items where id = ?")
+    .prepare(
+      "select id, owner_id, title, content, tags, created_at, updated_at from items where id = ?",
+    )
     .get(id) as ItemRow | undefined;
 
   return row ?? null;
@@ -69,26 +87,58 @@ export function getItem(db: DbClient, id: string): ItemRow | null {
 export function listItemsByOwner(db: DbClient, ownerId: string): ItemRow[] {
   return db
     .prepare(
-      "select id, owner_id, title, content, created_at, updated_at from items where owner_id = ? order by created_at asc, rowid asc",
+      "select id, owner_id, title, content, tags, created_at, updated_at from items where owner_id = ? order by created_at asc, rowid asc",
     )
     .all(ownerId) as ItemRow[];
 }
+
+export type ListItemsFilters = {
+  q?: string;
+  tag?: string;
+};
 
 export function listItemsPageByOwner(
   db: DbClient,
   ownerId: string,
   limit: number,
   offset: number,
+  filters?: ListItemsFilters,
 ): { items: ItemRow[]; total: number } {
+  const q = filters?.q?.trim();
+  const tag = filters?.tag?.trim();
+  const hasQ = q && q.length > 0;
+  const hasTag = tag && tag.length > 0;
+
+  const whereClause =
+    !hasQ && !hasTag
+      ? "owner_id = ?"
+      : hasQ && !hasTag
+        ? "owner_id = ? AND (lower(title) LIKE ? OR lower(content) LIKE ?)"
+        : !hasQ && hasTag
+          ? "owner_id = ? AND tags LIKE ?"
+          : "owner_id = ? AND (lower(title) LIKE ? OR lower(content) LIKE ?) AND tags LIKE ?";
+
+  const likeQ = hasQ ? `%${q!.toLowerCase()}%` : "";
+  const tagPattern = hasTag ? `%"${tag!.replace(/"/g, "")}"%` : "";
+
+  const totalParams: unknown[] = [ownerId];
+  if (hasQ) totalParams.push(likeQ, likeQ);
+  if (hasTag) totalParams.push(tagPattern);
+
   const totalRow = db
-    .prepare("select count(*) as n from items where owner_id = ?")
-    .get(ownerId) as { n: number };
+    .prepare(`select count(*) as n from items where ${whereClause}`)
+    .get(...totalParams) as { n: number };
+
+  const selectParams: unknown[] = [ownerId];
+  if (hasQ) selectParams.push(likeQ, likeQ);
+  if (hasTag) selectParams.push(tagPattern);
+  selectParams.push(limit, offset);
 
   const items = db
     .prepare(
-      "select id, owner_id, title, content, created_at, updated_at from items where owner_id = ? order by created_at asc, rowid asc limit ? offset ?",
+      `select id, owner_id, title, content, tags, created_at, updated_at from items where ${whereClause} order by created_at asc, rowid asc limit ? offset ?`,
     )
-    .all(ownerId, limit, offset) as ItemRow[];
+    .all(...selectParams) as ItemRow[];
 
   return { items, total: totalRow.n };
 }

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS items (
   owner_id TEXT NOT NULL,
   title TEXT NOT NULL,
   content TEXT NOT NULL,
+  tags TEXT NOT NULL DEFAULT '[]',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
