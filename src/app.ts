@@ -7,7 +7,7 @@ import { migrate } from "./db/migrate.js";
 import { isAppError, AppError } from "./lib/errors.js";
 import { err, internalError, badRequest } from "./lib/http.js";
 import { getConfig } from "./lib/config.js";
-import { parseAuth } from "./lib/auth.js";
+import { getOwnerId } from "./lib/auth.js";
 
 export type AppDeps = {
   db: DbClient;
@@ -27,18 +27,18 @@ export function buildApp(deps?: Partial<AppDeps>) {
     })();
 
   app.decorate("deps", { db } satisfies AppDeps);
-  app.decorateRequest("userId", undefined);
+  app.decorateRequest("ownerId", undefined);
 
   // Centralized auth requirement:
-  // Enforce auth for /items* routes, attach req.userId for handlers.
+  // Enforce auth for /items* routes, attach req.ownerId for handlers.
   app.addHook("preHandler", async (req) => {
     if (!req.url.startsWith("/items")) return;
 
-    const r = parseAuth(req.headers as any);
-    if (!r.ok) {
-      throw new AppError("UNAUTHORIZED", 401, r.message);
+    const ownerId = getOwnerId(req);
+    if (!ownerId) {
+      throw new AppError("UNAUTHORIZED", 401, "missing authorization");
     }
-    req.userId = r.userId;
+    req.ownerId = ownerId;
   });
 
   app.setErrorHandler((error, _req, reply) => {
@@ -72,6 +72,6 @@ declare module "fastify" {
   }
 
   interface FastifyRequest {
-    userId?: string;
+    ownerId?: string;
   }
 }

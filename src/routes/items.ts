@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { AppError } from "../lib/errors.js";
 import {
   createItem,
   deleteItem,
@@ -6,10 +7,8 @@ import {
   listItemsPageByOwner,
   updateItem,
 } from "../services/itemService.js";
-import { AppError } from "../lib/errors.js";
-import { ok } from "../lib/http.js";
 
-const itemBodySchema = {
+const createBodySchema = {
   type: "object",
   additionalProperties: false,
   required: ["title", "content"],
@@ -19,94 +18,73 @@ const itemBodySchema = {
   },
 } as const;
 
-const listQuerySchema = {
+const updateBodySchema = {
   type: "object",
   additionalProperties: false,
+  required: ["title", "content"],
   properties: {
-    limit: { type: "integer", minimum: 1, maximum: 100 },
-    offset: { type: "integer", minimum: 0 },
+    title: { type: "string", minLength: 1 },
+    content: { type: "string", minLength: 1 },
   },
 } as const;
 
-function parseIntParam(v: unknown): number | null {
-  if (typeof v === "number" && Number.isInteger(v)) return v;
-  if (typeof v === "string" && v.trim() !== "") {
-    const n = Number(v);
-    if (Number.isInteger(n)) return n;
-  }
-  return null;
-}
-
 export async function registerItemRoutes(app: FastifyInstance) {
-  app.get("/items", { schema: { querystring: listQuerySchema } }, async (req) => {
-    const ownerId = req.userId as string;
+  const { db } = app.deps;
 
-    const q = (req.query ?? {}) as any;
+  app.get("/items", async (req, reply) => {
+    const ownerId = req.ownerId as string;
+    const limit =
+      req.query && typeof (req.query as any).limit !== "undefined"
+        ? Number((req.query as any).limit)
+        : 20;
+    const offset =
+      req.query && typeof (req.query as any).offset !== "undefined"
+        ? Number((req.query as any).offset)
+        : 0;
 
-    const limitRaw = q.limit;
-    const offsetRaw = q.offset;
-
-    const limit = limitRaw === undefined ? 20 : parseIntParam(limitRaw);
-    const offset = offsetRaw === undefined ? 0 : parseIntParam(offsetRaw);
-
-    if (limit === null || offset === null) {
-      throw new AppError("BAD_REQUEST", 400, "invalid pagination");
-    }
-    if (limit < 1 || limit > 100 || offset < 0) {
-      throw new AppError("BAD_REQUEST", 400, "invalid pagination");
-    }
-
-    const { items, total } = listItemsPageByOwner(app.deps.db, ownerId, limit, offset);
-    return ok({ items, page: { limit, offset, total } });
-  });
-
-  app.post("/items", { schema: { body: itemBodySchema } }, async (req, reply) => {
-    const ownerId = req.userId as string;
-
-    const body = req.body as { title: string; content: string };
-    const item = createItem(app.deps.db, {
-      ownerId,
-      title: body.title,
-      content: body.content,
+    const page = listItemsPageByOwner(db, ownerId, limit, offset);
+    return reply.send({
+      success: true,
+      data: {
+        page: { limit, offset, total: page.total },
+        items: page.items,
+      },
     });
-
-    return reply.code(201).send(ok({ item }));
   });
 
-  app.get("/items/:id", async (req) => {
-    const ownerId = req.userId as string;
+  app.post("/items", { schema: { body: createBodySchema } }, async (req, reply) => {
+    const ownerId = req.ownerId as string;
+    const body = req.body as { title: string; content: string };
 
+    const item = createItem(db, { ownerId, title: body.title, content: body.content });
+    return reply.code(201).send({ success: true, data: { item } });
+  });
+
+  app.get("/items/:id", async (req, reply) => {
+    const ownerId = req.ownerId as string;
     const id = (req.params as any).id as string;
-    const item = getItem(app.deps.db, id);
-    if (!item) throw new AppError("ITEM_NOT_FOUND", 404, "item not found");
-    if (item.owner_id !== ownerId) throw new AppError("FORBIDDEN", 403, "not your item");
 
-    return ok({ item });
+    const item = getItem(db, id);
+    if (!item || item.owner_id !== ownerId) {
+      throw new AppError("ITEM_NOT_FOUND", 404, "item not found");
+    }
+    return reply.send({ success: true, data: { item } });
   });
 
-  app.put("/items/:id", { schema: { body: itemBodySchema } }, async (req) => {
-    const ownerId = req.userId as string;
-
+  app.put("/items/:id", { schema: { body: updateBodySchema } }, async (req, reply) => {
+    const ownerId = req.ownerId as string;
     const id = (req.params as any).id as string;
     const body = req.body as { title: string; content: string };
 
-    const item = updateItem(app.deps.db, {
-      id,
-      ownerId,
-      title: body.title,
-      content: body.content,
-    });
-
-    return ok({ item });
+    const item = updateItem(db, { id, ownerId, title: body.title, content: body.content });
+    return reply.send({ success: true, data: { item } });
   });
 
-  app.delete("/items/:id", async (req) => {
-    const ownerId = req.userId as string;
-
+  app.delete("/items/:id", async (req, reply) => {
+    const ownerId = req.ownerId as string;
     const id = (req.params as any).id as string;
 
-    const res = deleteItem(app.deps.db, { id, ownerId });
-    if (!res.deleted) throw new AppError("ITEM_NOT_FOUND", 404, "item not found");
-    return ok({ deleted: true });
+    deleteItem(db, { id, ownerId });
+    return reply.send({ success: true, data: { deleted: true } });
   });
 }
