@@ -13,7 +13,7 @@ type IntentType = "plan" | "report" | "execute" | "fix" | "unknown";
 type WriteScope = "artifacts_only" | "repo_only" | "unknown";
 type OutputStyle = "summary" | "detailed" | "unknown";
 
-function extractIntentType(content: string): { value: IntentType; errors: string[] } {
+export function extractIntentType(content: string): { value: IntentType; errors: string[] } {
   const errs: string[] = [];
   const c = content.toLowerCase();
   if (/\b(修复|bug|失败)\b/.test(content) || /\bbug\b|\bfix\b/.test(c)) return { value: "fix", errors: [] };
@@ -25,13 +25,16 @@ function extractIntentType(content: string): { value: IntentType; errors: string
   return { value: "unknown", errors: errs };
 }
 
-function extractConstraints(content: string): {
+export function extractConstraints(content: string): {
   no_external_ops: boolean;
   write_scope: WriteScope;
   output_style: OutputStyle;
   errors: string[];
 } {
   const errs: string[] = [];
+  if (/do not mention constraints?|without constraints?/i.test(content)) {
+    return { no_external_ops: false, write_scope: "unknown", output_style: "unknown", errors: ["constraints negated by user"] };
+  }
   const no_external_ops =
     /不得执行外部操作|no-external-actions|no\s+external/i.test(content);
   let write_scope: WriteScope = "unknown";
@@ -44,13 +47,16 @@ function extractConstraints(content: string): {
   return { no_external_ops, write_scope, output_style, errors: errs };
 }
 
-function extractAcceptance(content: string): {
+export function extractAcceptance(content: string): {
   must_have_sections: string[];
   must_include_fields: string[];
   commands: string[];
   errors: string[];
 } {
   const errs: string[] = [];
+  if (/do not mention.*acceptance|without acceptance/i.test(content)) {
+    return { must_have_sections: [], must_include_fields: [], commands: [], errors: ["acceptance negated by user"] };
+  }
   const must_have_sections: string[] = [];
   if (/必须出现\s*(四个小标题|四块)|actions\/files\/risks\/acceptance/.test(content)) {
     must_have_sections.push("Proposed Actions", "Files to Change", "Risks & Safeguards", "Acceptance Checks");
@@ -124,4 +130,6 @@ function main() {
   console.log("run:parse OK -> out/ir.json");
 }
 
-main();
+if (process.argv[1]?.includes("parse_conversation")) {
+  main();
+}
