@@ -52,3 +52,8 @@ tests/match_scifi_ai.pipeline.test.ts
 ## 生成时间（UTC）
 
 - `2026-02-17T09:00:00Z`
+
+## Tag 说明
+
+- **stable tag** (`sf-matching-v1-stable`) = 冻结点，指向 commit `8a3d7f3`
+- **freeze-report tag** (`sf-matching-v1-freeze-report`) = 含最终验收报告，指向 commit `f299ff2`

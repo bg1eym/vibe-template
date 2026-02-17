@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PipelineIO",
+  "description": "Pipeline match output schema",
+  "type": "object",
+  "required": ["hits", "trace", "ui_state", "metrics"],
+  "properties": {
+    "hits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "score", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "score": { "type": "number" },
+          "label": { "type": "string" }
+        }
+      }
+    },
+    "trace": {
+      "type": "object",
+      "required": ["task_id", "pipeline_name", "policy_version", "runtime_ms", "errors", "files_written", "changeset_id"],
+      "properties": {
+        "task_id": { "type": "string" },
+        "pipeline_name": { "type": "string" },
+        "policy_version": { "type": "string" },
+        "runtime_ms": { "type": "number" },
+        "errors": { "type": "array", "items": { "type": "string" } },
+        "files_written": { "type": "array", "items": { "type": "string" } },
+        "changeset_id": { "type": "string" }
+      }
+    },
+    "ui_state": { "type": "object" },
+    "metrics": { "type": "object" }
+  }
+}

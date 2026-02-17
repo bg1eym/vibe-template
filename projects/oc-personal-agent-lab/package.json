@@ -1,0 +1,28 @@
+{
+  "name": "oc-personal-agent-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "run:parse": "tsx pipelines/parse_conversation.ts",
+    "run:match": "tsx pipelines/match_stub.ts",
+    "eval": "tsx eval/run_eval.ts",
+    "oc:smoke": "tsx runtime/oc_bridge.ts",
+    "oc:bind": "tsx runtime/oc_bind.ts",
+    "run:all": "npm run run:parse && npm run run:match && npm run eval && npm run oc:smoke && npm run gen:changeset",
+    "gen:changeset": "tsx runtime/gen_changeset.ts",
+    "review:check": "tsx scripts/review_check.ts",
+    "gen:golden": "tsx scripts/gen_golden.ts",
+    "test": "vitest run",
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0"
+  }
+}

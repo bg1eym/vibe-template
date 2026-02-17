@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Policy",
+  "description": "Policy config for runtime",
+  "type": "object",
+  "required": ["require_no_input", "workspace_root", "skills_allowlist", "trace_required"],
+  "properties": {
+    "require_no_input": { "type": "boolean" },
+    "workspace_root": { "type": "string" },
+    "skills_allowlist": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "trace_required": { "type": "boolean" }
+  }
+}
