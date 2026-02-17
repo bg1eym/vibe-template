@@ -72,7 +72,7 @@ describe("items routes", () => {
 
     const res = await app.inject({ method: "GET", url: "/items" });
     expect(res.statusCode).toBe(401);
-    expect(res.json()).toEqual({
+    expect(res.json()).toMatchObject({
       success: false,
       error: { code: "UNAUTHORIZED", message: "missing authorization" },
     });
@@ -97,7 +97,7 @@ describe("items routes", () => {
     });
 
     expect(res.statusCode).toBe(400);
-    expect(res.json()).toEqual({
+    expect(res.json()).toMatchObject({
       success: false,
       error: { code: "BAD_REQUEST", message: "invalid request" },
     });
@@ -121,7 +121,7 @@ describe("items routes", () => {
     });
 
     expect(res.statusCode).toBe(404);
-    expect(res.json()).toEqual({
+    expect(res.json()).toMatchObject({
       success: false,
       error: { code: "ITEM_NOT_FOUND", message: "item not found" },
     });
@@ -156,7 +156,7 @@ describe("items routes", () => {
     });
 
     expect(res.statusCode).toBe(403);
-    expect(res.json()).toEqual({
+    expect(res.json()).toMatchObject({
       success: false,
       error: { code: "FORBIDDEN", message: "not your item" },
     });

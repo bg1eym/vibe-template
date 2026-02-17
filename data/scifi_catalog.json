@@ -1,6 +1,7 @@
 [
   {
     "title": "Dune",
+    "title_cn": "沙丘",
     "author": "Frank Herbert",
     "premise": "A noble family controls desert planet Arrakis.",
     "themes": ["space", "dystopia", "genetics"],
@@ -9,6 +10,7 @@
   },
   {
     "title": "1984",
+    "title_cn": "一九八四",
     "author": "George Orwell",
     "premise": "Totalitarian regime surveils citizens.",
     "themes": ["dystopia", "consciousness"],
@@ -17,6 +19,7 @@
   },
   {
     "title": "Neuromancer",
+    "title_cn": "神经漫游者",
     "author": "William Gibson",
     "premise": "Hacker navigates cyberspace.",
     "themes": ["cyberpunk", "ai", "consciousness"],
@@ -25,6 +28,7 @@
   },
   {
     "title": "The Martian",
+    "title_cn": "火星救援",
     "author": "Andy Weir",
     "premise": "Astronaut stranded on Mars.",
     "themes": ["space", "genetics"],
@@ -33,6 +37,7 @@
   },
   {
     "title": "Blade Runner",
+    "title_cn": "银翼杀手",
     "author": "Philip K. Dick",
     "premise": "Replicants hunted in future LA.",
     "themes": ["ai", "cyberpunk", "consciousness"],
@@ -41,6 +46,7 @@
   },
   {
     "title": "Foundation",
+    "title_cn": "基地",
     "author": "Isaac Asimov",
     "premise": "Psychohistory predicts empire collapse.",
     "themes": ["space", "ai", "time_travel"],
@@ -49,6 +55,7 @@
   },
   {
     "title": "The Time Machine",
+    "title_cn": "时间机器",
     "author": "H.G. Wells",
     "premise": "Inventor travels to distant future.",
     "themes": ["time_travel", "dystopia"],
@@ -57,6 +64,7 @@
   },
   {
     "title": "Ender's Game",
+    "title_cn": "安德的游戏",
     "author": "Orson Scott Card",
     "premise": "Child soldiers train for alien war.",
     "themes": ["space", "contact", "ai"],
@@ -65,6 +73,7 @@
   },
   {
     "title": "Snow Crash",
+    "title_cn": "雪崩",
     "author": "Neal Stephenson",
     "premise": "Hacker uncovers viral meme.",
     "themes": ["cyberpunk", "consciousness"],
@@ -73,6 +82,7 @@
   },
   {
     "title": "Contact",
+    "title_cn": "接触",
     "author": "Carl Sagan",
     "premise": "Scientists receive alien signal.",
     "themes": ["contact", "space"],
@@ -81,6 +91,7 @@
   },
   {
     "title": "Brave New World",
+    "title_cn": "美丽新世界",
     "author": "Aldous Huxley",
     "premise": "Society engineered for stability.",
     "themes": ["dystopia", "genetics"],
@@ -89,6 +100,7 @@
   },
   {
     "title": "Ex Machina",
+    "title_cn": "机械姬",
     "author": "Alex Garland",
     "premise": "Programmer tests AI humanoid.",
     "themes": ["ai", "consciousness"],
@@ -97,6 +109,7 @@
   },
   {
     "title": "Arrival",
+    "title_cn": "降临",
     "author": "Ted Chiang",
     "premise": "Linguist decodes alien language.",
     "themes": ["contact", "time_travel", "consciousness"],
@@ -105,6 +118,7 @@
   },
   {
     "title": "Altered Carbon",
+    "title_cn": "副本",
     "author": "Richard Morgan",
     "premise": "Consciousness stored in stacks.",
     "themes": ["cyberpunk", "consciousness", "ai"],
@@ -113,6 +127,7 @@
   },
   {
     "title": "The Left Hand of Darkness",
+    "title_cn": "黑暗的左手",
     "author": "Ursula K. Le Guin",
     "premise": "Envoy to androgynous world.",
     "themes": ["space", "genetics", "contact"],
@@ -121,6 +136,7 @@
   },
   {
     "title": "Hyperion",
+    "title_cn": "海伯利安",
     "author": "Dan Simmons",
     "premise": "Pilgrims seek the Shrike.",
     "themes": ["space", "time_travel", "ai"],
@@ -129,6 +145,7 @@
   },
   {
     "title": "Do Androids Dream",
+    "title_cn": "仿生人会梦见电子羊吗",
     "author": "Philip K. Dick",
     "premise": "Bounty hunter retires replicants.",
     "themes": ["ai", "consciousness", "dystopia"],
@@ -137,6 +154,7 @@
   },
   {
     "title": "The Three-Body Problem",
+    "title_cn": "三体",
     "author": "Liu Cixin",
     "premise": "Physicists contact Trisolarans.",
     "themes": ["contact", "space", "ai"],
@@ -145,6 +163,7 @@
   },
   {
     "title": "Annihilation",
+    "title_cn": "遗落的南境",
     "author": "Jeff VanderMeer",
     "premise": "Expedition into mutated zone.",
     "themes": ["genetics", "consciousness", "contact"],
@@ -153,6 +172,7 @@
   },
   {
     "title": "Ready Player One",
+    "title_cn": "头号玩家",
     "author": "Ernest Cline",
     "premise": "VR treasure hunt in OASIS.",
     "themes": ["cyberpunk", "consciousness"],
@@ -161,6 +181,7 @@
   },
   {
     "title": "Project Hail Mary",
+    "title_cn": "挽救计划",
     "author": "Andy Weir",
     "premise": "Scientist saves Earth from sun dimming.",
     "themes": ["space", "contact"],
@@ -169,6 +190,7 @@
   },
   {
     "title": "Children of Time",
+    "title_cn": "时间的孩子",
     "author": "Adrian Tchaikovsky",
     "premise": "Spiders evolve on terraformed world.",
     "themes": ["space", "genetics", "ai"],
@@ -177,6 +199,7 @@
   },
   {
     "title": "The Dispossessed",
+    "title_cn": "一无所有",
     "author": "Ursula K. Le Guin",
     "premise": "Physicist bridges two worlds.",
     "themes": ["space", "dystopia"],
@@ -185,6 +208,7 @@
   },
   {
     "title": "Dark Matter",
+    "title_cn": "暗物质",
     "author": "Blake Crouch",
     "premise": "Physicist lost in multiverse.",
     "themes": ["time_travel", "consciousness"],
@@ -193,6 +217,7 @@
   },
   {
     "title": "Station Eleven",
+    "title_cn": "第十一站",
     "author": "Emily St. John Mandel",
     "premise": "Troupe survives pandemic collapse.",
     "themes": ["dystopia", "consciousness"],
@@ -201,6 +226,7 @@
   },
   {
     "title": "Red Mars",
+    "title_cn": "红火星",
     "author": "Kim Stanley Robinson",
     "premise": "First hundred colonize Mars.",
     "themes": ["space", "genetics", "dystopia"],
@@ -209,6 +235,7 @@
   },
   {
     "title": "The Windup Girl",
+    "title_cn": "发条女孩",
     "author": "Paolo Bacigalupi",
     "premise": "Bio-engineered future Thailand.",
     "themes": ["genetics", "dystopia", "cyberpunk"],
@@ -217,6 +244,7 @@
   },
   {
     "title": "Solaris",
+    "title_cn": "索拉里斯星",
     "author": "Stanisław Lem",
     "premise": "Ocean planet probes human psyche.",
     "themes": ["space", "contact", "consciousness"],
@@ -225,6 +253,7 @@
   },
   {
     "title": "I, Robot",
+    "title_cn": "我，机器人",
     "author": "Isaac Asimov",
     "premise": "Robotics and the three laws.",
     "themes": ["ai", "consciousness"],
@@ -233,6 +262,7 @@
   },
   {
     "title": "The City and the Stars",
+    "title_cn": "城市与星星",
     "author": "Arthur C. Clarke",
     "premise": "Immortal city and the unknown.",
     "themes": ["space", "ai", "consciousness"],
@@ -241,6 +271,7 @@
   },
   {
     "title": "Parable of the Sower",
+    "title_cn": "播种者的寓言",
     "author": "Octavia Butler",
     "premise": "Empath navigates climate collapse.",
     "themes": ["dystopia", "genetics", "consciousness"],

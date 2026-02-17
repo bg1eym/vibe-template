@@ -20,3 +20,7 @@ export function badRequest(message = "invalid request") {
 export function internalError() {
   return err("INTERNAL_ERROR", "internal error");
 }
+
+export function badUpstream(message = "upstream service error") {
+  return err("BAD_UPSTREAM", message);
+}

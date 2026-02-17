@@ -12,7 +12,7 @@
     "fmt:check": "prettier --check \"**/*.{ts,js,json,md}\"",
     "lint": "eslint .",
     "check": "npm run build && npm test && npm run fmt:check && npm run lint",
-    "build:client": "esbuild src/client/studio.ts src/client/ui.ts --bundle --format=iife --outdir=public"
+    "build:client": "tsx scripts/build-client.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

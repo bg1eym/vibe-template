@@ -15,7 +15,7 @@ function showError(msg: string): void {
   const el = document.getElementById("error");
   if (el) {
     el.textContent = msg;
-    (el as HTMLElement).style.display = msg ? "block" : "none";
+    (el as HTMLElement).classList.toggle("visible", !!msg);
   }
 }
 
@@ -62,7 +62,7 @@ function renderChart(items: Array<{ tags?: string[] }>): void {
 
   if (counts.length === 0) {
     const p = document.createElement("p");
-    p.style.color = "#9ca3af";
+    p.className = "chart-empty";
     p.textContent = "No tags in current list.";
     chart.appendChild(p);
     return;

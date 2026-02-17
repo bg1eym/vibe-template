@@ -1,6 +1,8 @@
+import crypto from "node:crypto";
 import Fastify from "fastify";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerAnalyzeRoutes } from "./routes/analyze.js";
+import { registerAnalyzeAiRoutes } from "./routes/analyzeAi.js";
 import { registerItemRoutes } from "./routes/items.js";
 import { registerOpenApiRoutes } from "./routes/openapi.js";
 import { registerUiRoutes } from "./routes/ui.js";
@@ -12,10 +14,17 @@ import { isAppError, AppError } from "./lib/errors.js";
 import { err, internalError, badRequest } from "./lib/http.js";
 import { getConfig } from "./lib/config.js";
 import { getOwnerId } from "./lib/auth.js";
+import { createLlmClient, getLlmConfig } from "./lib/llmClient.js";
+import type { LlmClient } from "./lib/llmClient.js";
 
 export type AppDeps = {
   db: DbClient;
+  llmClient: LlmClient | null;
 };
+
+function shortId(): string {
+  return crypto.randomUUID().slice(0, 8);
+}
 
 export function buildApp(deps?: Partial<AppDeps>) {
   const app = Fastify({ logger: false });
@@ -30,8 +39,18 @@ export function buildApp(deps?: Partial<AppDeps>) {
       return d;
     })();
 
-  app.decorate("deps", { db } satisfies AppDeps);
+  const llmClient =
+    deps?.llmClient !== undefined ? deps.llmClient : createLlmClient(getLlmConfig());
+
+  app.decorate("deps", { db, llmClient } satisfies AppDeps);
   app.decorateRequest("ownerId", undefined);
+  app.decorateRequest("reqId", "");
+
+  app.addHook("onRequest", async (req, reply) => {
+    const id = shortId();
+    req.reqId = id;
+    void reply.header("x-req-id", id);
+  });
 
   // Centralized auth requirement:
   // Enforce auth for /items* and /analyze routes, attach req.ownerId for handlers.
@@ -39,7 +58,13 @@ export function buildApp(deps?: Partial<AppDeps>) {
     const needsAuth =
       req.url.startsWith("/items") ||
       req.url.startsWith("/analyze") ||
-      req.url.startsWith("/expand");
+      req.url.startsWith("/expand") ||
+      req.url.startsWith("/analyze_ai") ||
+      req.url.startsWith("/match_scifi_ai") ||
+      req.url.startsWith("/repair_match_scifi_ai") ||
+      req.url.startsWith("/match_scifi_ai_expand") ||
+      req.url.startsWith("/match_scifi_ai_rerank") ||
+      req.url.startsWith("/match_scifi_ai_improve");
     if (!needsAuth) return;
 
     const ownerId = getOwnerId(req);
@@ -49,22 +74,43 @@ export function buildApp(deps?: Partial<AppDeps>) {
     req.ownerId = ownerId;
   });
 
-  app.setErrorHandler((error, _req, reply) => {
-    const anyErr: any = error as any;
+  app.setErrorHandler((error, req, reply) => {
+    const reqId = req.reqId ?? "";
+    const anyErr = error as Record<string, unknown>;
 
     if (anyErr && anyErr.validation) {
-      return reply.code(400).send(badRequest("invalid request"));
+      console.error(`[${reqId}] ${req.method} ${req.url} 400 validation_error`);
+      return reply.code(400).send({ ...badRequest("invalid request"), req_id: reqId });
     }
 
     if (isAppError(error)) {
-      return reply.code(error.statusCode).send(err(error.code, error.message));
+      console.error(
+        `[${reqId}] ${req.method} ${req.url} ${error.statusCode} ${error.code}: ${error.message}`,
+      );
+      return reply
+        .code(error.statusCode)
+        .send({ ...err(error.code, error.message), req_id: reqId });
     }
 
-    return reply.code(500).send(internalError());
+    const msg = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    console.error(`[${reqId}] ${req.method} ${req.url} 500 INTERNAL: ${msg}`);
+    if (stack) console.error(stack);
+    return reply.code(500).send({ ...internalError(), req_id: reqId });
+  });
+
+  app.addHook("onResponse", async (req, reply) => {
+    const reqId = req.reqId ?? "";
+    const status = reply.statusCode;
+    const elapsed = reply.elapsedTime?.toFixed(0) ?? "?";
+    if (status >= 400) {
+      console.error(`[${reqId}] ${req.method} ${req.url} ${status} ${elapsed}ms`);
+    }
   });
 
   void registerHealthRoutes(app);
   void registerAnalyzeRoutes(app);
+  void registerAnalyzeAiRoutes(app);
   void registerItemRoutes(app);
   void registerOpenApiRoutes(app);
   void registerUiRoutes(app);
@@ -85,5 +131,6 @@ declare module "fastify" {
 
   interface FastifyRequest {
     ownerId?: string;
+    reqId?: string;
   }
 }

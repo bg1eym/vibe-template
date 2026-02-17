@@ -27,7 +27,7 @@ describe("analyze routes", () => {
       payload: { text: "space and time travel" },
     });
     expect(res.statusCode).toBe(401);
-    expect(res.json()).toEqual({
+    expect(res.json()).toMatchObject({
       success: false,
       error: { code: "UNAUTHORIZED", message: "missing authorization" },
     });

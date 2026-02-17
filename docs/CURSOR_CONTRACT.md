@@ -5,6 +5,13 @@ This repository uses Cursor/Claude as an assistant, but the codebase must remain
 ## Files policy
 
 - `CLAUDE.md`: Project rules entry (high-level constraints only).
+- **禁止提交 bundle 产物**：`dist/public/*.js`、`public/*.js` 为构建输出，不得入库。`.gitignore` 已包含 `dist/`、`public/`。
+
+## Security rules (UI / CSP / build)
+
+- **禁止在 UI 中拼接动态 innerHTML**：用户输入与 API 返回必须通过 `textContent`、`createElement` 或统一 `escapeHtml()` 渲染。
+- **CSP 必须存在且字段完整**：所有 HTML 页面（/studio、/ui）必须返回 `Content-Security-Policy` Header，且包含：`default-src 'self'`、`script-src 'self'`、`style-src 'self'`、`img-src 'self' data:`、`object-src 'none'`、`base-uri 'self'`、`frame-ancestors 'none'`。
+- **改 client TS 必须能被 build:client 捕捉到**：修改 `src/client/*.ts` 后必须运行 `npm run build:client`（或 `npm run build`）重新生成 `dist/public/*.js`。`./scripts/check-all.sh` 会在 build 阶段自动执行。
 - `docs/CURSOR_CONTRACT.md`: Cursor execution spec (commands, steps, acceptance).
 - `docs/openapi.json`: Generated artifact. Update only via `npm run openapi:gen`. Do not edit manually. If any formatting causes a diff, the output of `npm run openapi:gen` is the canonical version.
 

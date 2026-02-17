@@ -1,0 +1,125 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  margin: 16px;
+  max-width: 800px;
+}
+input,
+button {
+  padding: 8px 12px;
+  margin: 4px;
+}
+.input-token {
+  min-width: 180px;
+}
+.input-tags {
+  min-width: 160px;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.section {
+  margin: 20px 0;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+.error {
+  color: #dc2626;
+  background: #fef2f2;
+  padding: 8px;
+  border-radius: 4px;
+}
+#error {
+  display: none;
+}
+#error.visible {
+  display: block;
+}
+.item {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.item:last-child {
+  border-bottom: none;
+}
+.item-title {
+  font-weight: 600;
+}
+.item-content {
+  color: #6b7280;
+  font-size: 0.9em;
+  max-height: 2.4em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.item-tags {
+  margin-top: 4px;
+}
+.tag {
+  display: inline-block;
+  background: #e5e7eb;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  margin-right: 4px;
+}
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 120px;
+  margin-top: 8px;
+}
+.chart-bar {
+  flex: 1;
+  min-width: 40px;
+  background: #3b82f6;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.2s;
+}
+.chart-labels {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.chart-label {
+  flex: 1;
+  min-width: 40px;
+  font-size: 0.8em;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chart-empty {
+  color: #9ca3af;
+}
+
+/* Chart bar heights (CSP-safe: no inline styles) */
+.chart-bar.h-0 { height: 0%; }
+.chart-bar.h-5 { height: 5%; }
+.chart-bar.h-10 { height: 10%; }
+.chart-bar.h-15 { height: 15%; }
+.chart-bar.h-20 { height: 20%; }
+.chart-bar.h-25 { height: 25%; }
+.chart-bar.h-30 { height: 30%; }
+.chart-bar.h-35 { height: 35%; }
+.chart-bar.h-40 { height: 40%; }
+.chart-bar.h-45 { height: 45%; }
+.chart-bar.h-50 { height: 50%; }
+.chart-bar.h-55 { height: 55%; }
+.chart-bar.h-60 { height: 60%; }
+.chart-bar.h-65 { height: 65%; }
+.chart-bar.h-70 { height: 70%; }
+.chart-bar.h-75 { height: 75%; }
+.chart-bar.h-80 { height: 80%; }
+.chart-bar.h-85 { height: 85%; }
+.chart-bar.h-90 { height: 90%; }
+.chart-bar.h-95 { height: 95%; }
+.chart-bar.h-100 { height: 100%; }
