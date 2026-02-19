@@ -10,6 +10,7 @@ import {
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateAgainst } from "../lib/validate.js";
+import { classifyFailureClass } from "./classify.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -27,6 +28,7 @@ type FailureRecord = {
   constraints?: Record<string, unknown>;
   acceptance?: Record<string, unknown>;
   failure_reasons: string[];
+  failure_class: "expected" | "unexpected";
 };
 
 function existingSourceMessageIds(): Set<string> {
@@ -240,6 +242,7 @@ function runEval() {
       constraints: ir.constraints as Record<string, unknown> | undefined,
       acceptance: ir.acceptance as Record<string, unknown> | undefined,
       failure_reasons: failureReasons,
+      failure_class: classifyFailureClass(userContent),
     };
     appendFailure(record);
   }
