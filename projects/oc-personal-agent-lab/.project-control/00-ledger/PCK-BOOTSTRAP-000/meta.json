@@ -1,0 +1,1 @@
+{"task_id":"PCK-BOOTSTRAP-000","base_version":null,"inherits_failure_mode":"OK","declared_fix_target":"Bootstrap","verification_strategy":"RG-ATLAS-ENV-001","intent":"Bootstrap project-control structure","structural_scope":[],"timestamp":"2026-02-20T20:00:00.000Z"}

@@ -26,6 +26,33 @@ npm run oc:smoke      # 模拟 OC 输入，输出 task_id/intent/top3/trace_path
 - `contracts/pipeline_io.schema.json` - 匹配输出
 - `contracts/policy.schema.json` - 策略占位
 
+## Atlas Dashboard（oc-bind 插件）
+
+通过自然语言或斜杠命令触发 Atlas 管道（`pnpm atlas:run`），返回看板链接 + 封面图。
+
+### 自然语言触发（NL）
+
+- `发我 atlas 看板`
+- `生成今日 atlas`
+- `atlas`
+- `situation monitor`
+
+### 斜杠命令
+
+- `/atlas today` — 返回封面图 + 看板链接
+- `/atlas help` — 帮助
+
+### 配置（插件 config 或环境变量）
+
+- `ATLAS_ROOT` — Atlas 仓库根目录（atlas:run 所在 repo）
+- `ATLAS_DASHBOARD_URL_BASE` — 看板 URL 模板，含 `{{run_id}}`
+- `ATLAS_COVER_URL_BASE` — 封面图 URL 模板，含 `{{run_id}}`
+
+### 故障排查
+
+1. **配置缺失**：设置 ATLAS_DASHBOARD_URL_BASE、ATLAS_COVER_URL_BASE
+2. **插件未加载**：运行 `tools/fix-oc-bind-mismatch.sh`
+
 ## 验收
 
 - `out/ir.json` 通过 IR schema

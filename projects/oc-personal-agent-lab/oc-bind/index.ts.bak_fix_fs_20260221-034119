@@ -1,0 +1,419 @@
+/**
+ * OpenClaw plugin: /bind + /atlas commands.
+ * - /bind: triggers oc:bind pipeline (OC_BIND_ENABLED=1)
+ * - /atlas: Atlas dashboard — cover image + dashboard URL (triggers atlas:run)
+ */
+import { resolve, dirname, basename } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync, accessSync, constants, writeFileSync, mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
+import { spawn, spawnSync } from "node:child_process";
+import { route, ACTION_ATLAS_TODAY, ACTION_ATLAS_HELP, ACTION_ATLAS_DEBUG, ACTION_HELP } from "./nl-router.js";
+import { runAtlasToday, resolveNodeBin, resolvePnpmJs } from "./atlas-adapter.js";
+
+// PCK-ATLAS-005: Single canonical fs import (no duplicate readFileSync). Sanity: grep must find only one "from \"node:fs\"".
+export function getLatestAtlasRunId(atlasRoot: string): string | null {
+  try {
+    const dir = resolve(atlasRoot, "out", "atlas");
+    const items = readdirSync(dir).map((name) => {
+      const fp = resolve(dir, name);
+      try { const st = statSync(fp); return st.isDirectory() ? { name, mtime: st.mtimeMs } : null; } catch { return null; }
+    }).filter(Boolean) as { name: string; mtime: number }[];
+    items.sort((a, b) => b.mtime - a.mtime);
+    return items[0]?.name ?? null;
+  } catch { return null; }
+}
+export function loadLatestResultJson(atlasRoot: string, runId: string): Record<string, unknown> | null {
+  try {
+    return JSON.parse(readFileSync(resolve(atlasRoot, "out", "atlas", runId, "result.json"), "utf-8")) as Record<string, unknown>;
+  } catch { return null; }
+}
+export function buildDashboardUrl(base: string, runId: string): string {
+  return (base || "").replaceAll("{{run_id}}", encodeURIComponent(runId));
+}
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const PLUGIN_DIR = resolve(__dirname);
+
+/** Build fingerprint: <short_git_sha> <pck_ledger_version> <plugin_path_basename> */
+export function getBuildFingerprint(): string {
+  const pluginBasename = basename(PLUGIN_DIR);
+  const ledger = process.env.PCK_LEDGER_VERSION?.trim() || "PCK-ATLAS-005";
+  const git = spawnSync("git", ["rev-parse", "--short", "HEAD"], {
+    cwd: PLUGIN_DIR,
+    encoding: "utf-8",
+  });
+  const sha = git.status === 0 && git.stdout?.trim() ? git.stdout.trim() : "norepo";
+  return `build: ${sha} ${ledger} ${pluginBasename}`;
+}
+
+function appendFingerprint(text: string): string {
+  const fp = getBuildFingerprint();
+  return text.includes(fp) ? text : `${text}\n\n${fp}`;
+}
+const BIND_TIMEOUT_MS = 10_000;
+const DEFAULT_CWD = process.env.OC_BIND_CWD || resolve(__dirname, "..");
+
+const ATLAS_HELP_TEXT = `📡 Atlas Dashboard
+
+**NL:** atlas / 看板 / dashboard / situation monitor / 发我 atlas / 今日 atlas
+
+**Slash:** /atlas today | /atlas help`;
+
+function extractSixLines(stdout: string): string {
+  const want = [
+    "task_id:",
+    "source_message_id:",
+    "source_ts:",
+    "top3:",
+    "trace_path:",
+    "report_path:",
+  ];
+  const found: string[] = [];
+  for (const prefix of want) {
+    for (const line of stdout.split("\n")) {
+      const t = line.trim();
+      if (t.startsWith(prefix)) {
+        found.push(t);
+        break;
+      }
+    }
+  }
+  return found.join("\n") || stdout.slice(0, 500);
+}
+
+function resolveAtlasConfig(api: OpenClawPluginApi): {
+  atlasRoot: string;
+  dashboardUrlBase: string;
+  coverUrlBase: string;
+} {
+  const cfg = api.pluginConfig as {
+    atlasRoot?: string;
+    dashboardUrlBase?: string;
+    coverUrlBase?: string;
+  } | undefined;
+
+  const atlasRoot =
+    cfg?.atlasRoot?.trim() ||
+    process.env.ATLAS_ROOT?.trim() ||
+    process.cwd();
+
+  const dashboardUrlBase =
+    cfg?.dashboardUrlBase?.trim() ||
+    process.env.ATLAS_DASHBOARD_URL_BASE?.trim() ||
+    "";
+
+  const coverUrlBase =
+    cfg?.coverUrlBase?.trim() ||
+    process.env.ATLAS_COVER_URL_BASE?.trim() ||
+    "";
+
+  return { atlasRoot, dashboardUrlBase, coverUrlBase };
+}
+
+export default function register(api: OpenClawPluginApi) {
+  const cwd =
+    (api.pluginConfig as { cwd?: string } | undefined)?.cwd ||
+    process.env.OC_BIND_CWD ||
+    DEFAULT_CWD;
+
+  if (process.env.OC_BIND_ENABLED === "1") {
+    api.registerCommand({
+      name: "bind",
+      description: "Trigger oc-personal-agent-lab pipeline and return summary (OC_BIND_ENABLED=1)",
+      acceptsArgs: true,
+      requireAuth: true,
+      handler: async () => {
+        return new Promise<{ text: string }>((resolveHandler) => {
+          const proc = spawn("npm", ["run", "oc:bind"], {
+            cwd,
+            shell: true,
+            stdio: ["ignore", "pipe", "pipe"],
+          });
+
+          let stdout = "";
+          let stderr = "";
+          proc.stdout?.on("data", (d) => (stdout += d.toString()));
+          proc.stderr?.on("data", (d) => (stderr += d.toString()));
+
+          const timeout = setTimeout(() => {
+            proc.kill("SIGTERM");
+            resolveHandler({ text: "bind_error: timeout" });
+            logStderr(api, stderr, cwd);
+          }, BIND_TIMEOUT_MS);
+
+          proc.on("close", (code) => {
+            clearTimeout(timeout);
+            if (code !== 0) {
+              const reason = stderr.split("\n")[0]?.slice(0, 80) || `exit ${code}`;
+              resolveHandler({ text: `bind_error: ${reason}` });
+              logStderr(api, stderr, cwd);
+              return;
+            }
+            const six = extractSixLines(stdout);
+            resolveHandler({ text: six || "bind_error: no output" });
+          });
+
+          proc.on("error", (err) => {
+            clearTimeout(timeout);
+            resolveHandler({ text: `bind_error: ${err.message}` });
+            logStderr(api, stderr, cwd);
+          });
+        });
+      },
+    });
+  }
+
+  // Atlas command: triggers atlas:run, returns dashboard + cover URLs
+  api.registerCommand({
+    name: "atlas",
+    description: "Atlas Dashboard — cover image + dashboard URL",
+    acceptsArgs: true,
+    requireAuth: true,
+    matchNL: (body) => {
+      const r = route(body);
+      return r.action !== ACTION_HELP && r.action !== ACTION_ATLAS_DEBUG;
+    },
+    handler: async (ctx) => {
+      const body = ctx.args ?? ctx.commandBody ?? "";
+      const r = route(body);
+      const source = ctx.channel === "telegram" ? "telegram" : "webchat";
+      const start = Date.now();
+
+      if (r.action === ACTION_ATLAS_DEBUG) {
+        const { atlasRoot, dashboardUrlBase, coverUrlBase } = resolveAtlasConfig(api);
+        const { nodeBin, probe: nodeProbe } = resolveNodeBin();
+        const { pnpmJs, probe: pnpmProbe } = resolvePnpmJs();
+        const pathVal = process.env.PATH ?? "missing";
+        const pathDisplay = pathVal.length > 200 ? `${pathVal.slice(0, 200)}...[truncated]` : pathVal;
+        const nodeProbeStr = Object.entries(nodeProbe)
+          .map(([k, v]) => `${k}=${v}`)
+          .join("; ");
+        const pnpmProbeStr = Object.entries(pnpmProbe)
+          .map(([k, v]) => `${k}=${v}`)
+          .join("; ");
+        const atlasRootResolved = atlasRoot ? resolve(atlasRoot) : "";
+        const atlasRootExists = atlasRoot ? existsSync(atlasRootResolved) : false;
+        const atlasRootHasPkg = atlasRootExists && existsSync(resolve(atlasRootResolved, "package.json"));
+        let atlasRootHasScriptAtlasRun = false;
+        if (atlasRootHasPkg) {
+          try {
+            const pkg = JSON.parse(
+              readFileSync(resolve(atlasRootResolved, "package.json"), "utf-8")
+            );
+            atlasRootHasScriptAtlasRun = !!pkg?.scripts?.["atlas:run"];
+          } catch {
+            /* ignore */
+          }
+        }
+        let nodeAccess = "unknown";
+        let pnpmJsAccess = "unknown";
+        if (nodeBin) {
+          try {
+            accessSync(nodeBin, constants.X_OK);
+            nodeAccess = "X_OK";
+          } catch {
+            nodeAccess = "not_executable";
+          }
+        }
+        if (pnpmJs) {
+          try {
+            accessSync(pnpmJs, constants.R_OK);
+            pnpmJsAccess = "R_OK";
+          } catch {
+            pnpmJsAccess = "not_readable";
+          }
+        }
+        let pnpmVersionProbe = "not_run";
+        if (nodeBin && pnpmJs) {
+          try {
+            const probeProc = spawnSync(nodeBin, [pnpmJs, "-v"], {
+              encoding: "utf-8",
+              timeout: 3000,
+            });
+            pnpmVersionProbe = probeProc.status === 0
+              ? `ok: ${(probeProc.stdout || "").trim() || "unknown"}`
+              : `fail: exit ${probeProc.status}`;
+          } catch (e) {
+            pnpmVersionProbe = `fail: ${(e as Error).message}`;
+          }
+        }
+        const hintLine = !atlasRootExists
+          ? "Run: bash tools/atlas-env-audit.sh"
+          : null;
+        const debugLines = [
+          getBuildFingerprint(),
+          `process_execPath: ${process.execPath}`,
+          `gateway_node_exec: ${process.execPath}`,
+          `plugin_dir: ${basename(PLUGIN_DIR)}`,
+          `ATLAS_ROOT: ${atlasRoot ? "present" : "missing"}`,
+          `atlas_root_value: ${atlasRoot || "(not set)"}`,
+          `atlas_root_exists: ${atlasRootExists}`,
+          `atlas_root_has_pkg_json: ${atlasRootHasPkg}`,
+          `atlas_root_has_script_atlas_run: ${atlasRootHasScriptAtlasRun}`,
+          ...(hintLine ? [hintLine] : []),
+          `ATLAS_DASHBOARD_URL_BASE: ${dashboardUrlBase ? "present" : "missing"}`,
+          `ATLAS_COVER_URL_BASE: ${coverUrlBase ? "present" : "missing"}`,
+          `PATH: ${pathDisplay}`,
+          `node_bin_used: ${nodeBin ?? "none"}`,
+          `node_access: ${nodeAccess}`,
+          `pnpm_js_used: ${pnpmJs ?? "none"}`,
+          `pnpm_js_access: ${pnpmJsAccess}`,
+          `node_probe: ${nodeProbeStr || "(none)"}`,
+          `pnpm_js_probe: ${pnpmProbeStr || "(none)"}`,
+          `pnpm_version_probe: ${pnpmVersionProbe}`,
+        ];
+        api.logger?.info?.(
+          `[oc-bind] atlas: action=ATLAS_DEBUG source=${source} durationMs=${Date.now() - start} ok=true`,
+        );
+        return { text: debugLines.join("\n") };
+      }
+
+      if (r.action === ACTION_ATLAS_HELP) {
+        api.logger?.info?.(
+          `[oc-bind] atlas: action=ATLAS_HELP source=${source} durationMs=${Date.now() - start} ok=true`,
+        );
+        return { text: appendFingerprint(ATLAS_HELP_TEXT) };
+      }
+
+      if (r.action === ACTION_HELP) {
+        api.logger?.info?.(
+          `[oc-bind] atlas: action=HELP source=${source} durationMs=${Date.now() - start} ok=true`,
+        );
+        return { text: appendFingerprint(ATLAS_HELP_TEXT) };
+      }
+
+      if (r.action === ACTION_ATLAS_TODAY) {
+        const { atlasRoot, dashboardUrlBase, coverUrlBase } = resolveAtlasConfig(api);
+
+        const missing: string[] = [];
+        if (!dashboardUrlBase) missing.push("ATLAS_DASHBOARD_URL_BASE or config dashboardUrlBase");
+        if (!coverUrlBase) missing.push("ATLAS_COVER_URL_BASE or config coverUrlBase");
+
+        if (missing.length > 0) {
+          const errText =
+            `❌ Atlas 配置缺失。\n\n**缺少:** ${missing.join(", ")}\n\n` +
+            "**下一步:** 在 OpenClaw 插件配置或环境变量中设置上述项。";
+          api.logger?.info?.(
+            `[oc-bind] atlas: action=ATLAS_TODAY source=${source} durationMs=${Date.now() - start} ok=false error=config_missing`,
+          );
+          return { text: appendFingerprint(errText) };
+        }
+
+        
+        // PCK-ATLAS-005: Cache-first — reply within ~2s if cached result exists
+        try {
+          const rootGuess = (atlasRoot || "").trim() || process.cwd();
+          const latest = getLatestAtlasRunId(rootGuess);
+          if (latest) {
+            const jr = loadLatestResultJson(rootGuess, latest);
+            const dashboardUrl =
+              (jr?.dashboard_url as string) || (dashboardUrlBase ? buildDashboardUrl(dashboardUrlBase, latest) : "");
+            const coverUrl =
+              (jr?.cover_url as string) || (coverUrlBase ? buildDashboardUrl(coverUrlBase, latest) : "");
+            const coverMissing = jr?.cover_missing === true;
+            const runIdLine = `run_id: ${latest}`;
+            api.logger?.info?.(
+              `[oc-bind] atlas: action=ATLAS_TODAY source=${source} durationMs=${Date.now() - start} ok=true mode=quick_cache run_id=${latest}`,
+            );
+            if (coverUrl && !coverMissing) {
+              return {
+                photoUrl: coverUrl,
+                caption: appendFingerprint(`🟦 [打开 Dashboard](${dashboardUrl})\n\n${runIdLine}`),
+              } as { photoUrl: string; caption: string };
+            }
+            return {
+              text: appendFingerprint(`🟦 [打开 Dashboard](${dashboardUrl})\n\n${runIdLine}`),
+            };
+          }
+        } catch {
+          /* ignore quick cache */
+        }
+
+        // No cache: run pipeline (may block; timeout resilience in atlas-adapter)
+        const result = await runAtlasToday({
+          atlasRoot,
+          dashboardUrlBase,
+          coverUrlBase,
+          onProgress: (msg) => api.logger?.info?.("[oc-bind] atlas progress:", msg),
+        });
+        const durationMs = Date.now() - start;
+
+        api.logger?.info?.(
+          `[oc-bind] atlas: action=ATLAS_TODAY source=${source} durationMs=${durationMs} ok=${result.ok} dashboardUrl=${result.dashboardUrl || "—"} coverUrl=${result.coverUrl || "—"} coverMissing=${result.coverMissing}`,
+        );
+
+        if (result.ok) {
+          const runIdLine = `run_id: ${result.runId}`;
+          if (result.coverMissing) {
+            return {
+              text: appendFingerprint(
+                `🟦 [打开 Dashboard](${result.dashboardUrl})\n\n${runIdLine}\n\n（封面图暂不可用 / cover not available）`,
+              ),
+            };
+          }
+          return {
+            mediaUrl: result.coverUrl,
+            text: appendFingerprint(`🟦 [打开 Dashboard](${result.dashboardUrl})\n\n${runIdLine}`),
+          };
+        }
+
+        // PCK-ATLAS-005: On timeout, return best-effort cached dashboard URL
+        if (result.error === "timeout") {
+          const rootGuess = (atlasRoot || "").trim() || process.cwd();
+          const latest = getLatestAtlasRunId(rootGuess);
+          if (latest && dashboardUrlBase) {
+            const dashboardUrl = buildDashboardUrl(dashboardUrlBase, latest);
+            return {
+              text: appendFingerprint(
+                `⏱ Pipeline 超时。使用缓存结果。\n\n🟦 [打开 Dashboard](${dashboardUrl})\n\nrun_id: ${latest}\n\n（pipeline timed out; showing cached dashboard）`,
+              ),
+            };
+          }
+        }
+
+        let errText = "❌ Atlas 执行失败。\n\n";
+        errText += `**原因:** ${result.error ?? "未知"}\n\n`;
+        errText += `node_bin_used=${result.nodeBinUsed ?? "none"}\n`;
+        errText += `pnpm_js_used=${result.pnpmJsUsed ?? "none"}\n`;
+        if (result.gatewayNodeExec) errText += `gateway_node_exec=${result.gatewayNodeExec}\n`;
+        errText += `env_path=${result.envPath ?? "missing"}\n`;
+        errText += `atlas_root=${result.atlasRoot ?? "—"}\n\n`;
+        if (result.error === "ATLAS_ROOT_INVALID") {
+          errText += "**下一步:** Set ATLAS_ROOT to the atlas-radar repo root (where package.json exists). Run tools/atlas-root-discovery.sh for suggested value.";
+        } else {
+          errText += "**下一步:** hint: set NODE_BIN or PNPM_JS；或检查 ATLAS_ROOT、ATLAS_DASHBOARD_URL_BASE、ATLAS_COVER_URL_BASE。";
+        }
+        if (result.stderr) {
+          errText += `\n\nstderr:\n${result.stderr.slice(0, 500)}`;
+        }
+        return { text: appendFingerprint(errText) };
+      }
+
+      return { text: appendFingerprint(ATLAS_HELP_TEXT) };
+    },
+  });
+}
+
+function logStderr(api: OpenClawPluginApi, stderr: string, cwd: string) {
+  try {
+    api.logger?.error?.("[oc-bind] stderr:", stderr.slice(0, 500));
+    const debugPath = resolve(cwd, "out", "ingest_debug.json");
+    mkdirSync(resolve(cwd, "out"), { recursive: true });
+    writeFileSync(
+      debugPath,
+      JSON.stringify(
+        {
+          bind_stderr: stderr.slice(0, 2000),
+          cwd,
+          ts: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
+      "utf-8",
+    );
+  } catch {
+    /* ignore */
+  }
+}

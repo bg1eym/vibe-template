@@ -1,0 +1,16 @@
+{
+  "id": "oc-bind",
+  "name": "OC Bind",
+  "description": "Trigger oc-personal-agent-lab pipeline (/bind) and Atlas Dashboard (/atlas, NL). OC_BIND_ENABLED=1 for /bind.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": { "type": "boolean" },
+      "cwd": { "type": "string", "description": "Path to oc-personal-agent-lab" },
+      "atlasRoot": { "type": "string", "description": "Path to Atlas repo (ATLAS_ROOT)" },
+      "dashboardUrlBase": { "type": "string", "description": "Dashboard URL template with {{run_id}}" },
+      "coverUrlBase": { "type": "string", "description": "Cover image URL template with {{run_id}}" }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "actf-1",
+  "checks": [
+    {
+      "id": "CT-ATLAS-ENV-001",
+      "name": "Gateway ATLAS_ROOT audit",
+      "type": "execution",
+      "inputs": {},
+      "expected_evidence": ["atlas-env-audit.json"]
+    }
+  ]
+}

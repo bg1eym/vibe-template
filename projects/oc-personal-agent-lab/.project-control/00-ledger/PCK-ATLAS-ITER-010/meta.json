@@ -1,0 +1,10 @@
+{
+  "task_id": "PCK-ATLAS-ITER-010",
+  "base_version": "PCK-BOOTSTRAP-000",
+  "inherits_failure_mode": "EVIDENCE_MISSING",
+  "declared_fix_target": "ITER-009 artifacts not present in active workspace",
+  "verification_strategy": "RG-ATLAS-ENV-001, CT-ATLAS-ENV-001, critical-tests.sh",
+  "intent": "Evidence-locate missing ITER-009 artifacts and enforce env audit in correct workspace",
+  "structural_scope": ["gates:update", "critical-tests:update", "tools:add"],
+  "timestamp": "2026-02-20T21:00:00.000Z"
+}
