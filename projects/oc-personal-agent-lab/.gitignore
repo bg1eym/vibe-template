@@ -2,3 +2,7 @@ node_modules/
 dist/
 out/
 runtime/.ingest_cursor.json
+
+# local backups
+*.bak.*
+*.pre_fix.*
